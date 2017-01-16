@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env node
+#!/usr/bin/env node
 
 var fs = require('fs'),
     path = require('path'),
@@ -606,11 +606,15 @@ module.exports = function (context) {
         // Even though a relative URL is a valid according to the W3C spec, a full URL
         // is needed because the plugin cannot determine the manifest's origin.
         var start_url;
+        var from_local = false;
         if (manifest.start_url) {
           start_url = url.parse(manifest.start_url);
         }
 
-        if (!(start_url && start_url.hostname && start_url.protocol)) {
+        if (start_url && !start_url.hostname && !start_url.protocol) {
+          from_local = true;
+          start_url.hostname = path.join(projectRoot, 'www');
+        } else if (!(start_url && start_url.hostname && start_url.protocol)) {
           logger.error('Invalid or incomplete W3C manifest.');
           var err = new Error('The start_url member in the manifest is required and must be a full URL.');
           return task.reject(err);
