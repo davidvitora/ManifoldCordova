@@ -1,26 +1,26 @@
 #!/usr/bin/env node
 
 var createConfigParser = require('./createConfigParser'),
-    fs = require('fs'),
-    path = require('path'),
-    url = require('url'),
-    pendingTasks = [],
-    Q,
-    config,
-  	projectRoot,
-  	etree;
+  fs = require('fs'),
+  path = require('path'),
+  url = require('url'),
+  pendingTasks = [],
+  Q,
+  config,
+  projectRoot,
+  etree;
 
 var logger = {
-  log: function () {
+  log: function() {
     if (process.env.NODE_ENV !== 'test') {
-      console.log.apply(this, arguments)
+      console.log.apply(this, arguments);
     }
   },
   warn: function() {
     if (process.env.NODE_ENV !== 'test') {
-      console.warn.apply(this, arguments)
+      console.warn.apply(this, arguments);
     }
-  }
+  },
 };
 
 function deleteFile(path) {
@@ -29,7 +29,7 @@ function deleteFile(path) {
 
   logger.log('Deleting ' + path + ' file for the windows platform.');
 
-  fs.unlink(path, function (err) {
+  fs.unlink(path, function(err) {
     if (err) {
       console.log(err);
       return t.reject();
@@ -41,67 +41,94 @@ function deleteFile(path) {
 
 // Configure Cordova configuration parser
 function configureParser(context) {
-  var cordova_util = context.requireCordovaModule('cordova-lib/src/cordova/util');
+  var cordova_util = context.requireCordovaModule(
+    'cordova-lib/src/cordova/util'
+  );
   var ConfigParser;
   try {
-    ConfigParser = context.requireCordovaModule('cordova-lib/node_modules/cordova-common').ConfigParser;
+    ConfigParser = require('cordova-common').ConfigParser;
   } catch (err) {
     // Fallback to old location of config parser (old versions of cordova-lib)
-    ConfigParser = context.requireCordovaModule('cordova-lib/src/configparser/ConfigParser');
+    ConfigParser = require('cordova-common/src/ConfigParser');
   }
 
-  etree = context.requireCordovaModule('cordova-lib/node_modules/elementtree');
+  etree = require('elementtree');
 
   var xml = cordova_util.projectConfig(context.opts.projectRoot);
   config = createConfigParser(xml, etree, ConfigParser);
 }
 
-module.exports = function (context) {
+module.exports = function(context) {
   // If the plugin is not being removed, cancel the script
   if (context.opts.plugins.indexOf(context.opts.plugin.id) == -1) {
     return;
   }
-  
+
   var projectRoot = context.opts.projectRoot;
-  
+
   // if the windows folder does not exist, cancell the script
-  var windowsPath = path.join(projectRoot, "platforms","windows");
+  var windowsPath = path.join(projectRoot, 'platforms', 'windows');
   if (!fs.existsSync(windowsPath)) {
     return;
   }
-  
-  Q = context.requireCordovaModule('q');
+
+  try {
+    Q = require('q');
+  } catch (e) {
+    e.message = "Unable to load node module dependency 'q': " + e.message;
+    log(e.message);
+    throw e;
+  }
   var task = Q.defer();
 
-  var destPath = path.join(projectRoot, "platforms", "windows", "www", "wrapper.html");
+  var destPath = path.join(
+    projectRoot,
+    'platforms',
+    'windows',
+    'www',
+    'wrapper.html'
+  );
   if (fs.existsSync(destPath)) {
     deleteFile(destPath);
   }
 
-  destPath = path.join(projectRoot, "platforms", "windows", "www", "js", "wrapper.js");
+  destPath = path.join(
+    projectRoot,
+    'platforms',
+    'windows',
+    'www',
+    'js',
+    'wrapper.js'
+  );
 
   if (fs.existsSync(destPath)) {
     deleteFile(destPath);
   }
 
-  destPath = path.join(projectRoot, "platforms", "windows", "www", "css", "wrapper.css");
+  destPath = path.join(
+    projectRoot,
+    'platforms',
+    'windows',
+    'www',
+    'css',
+    'wrapper.css'
+  );
 
   if (fs.existsSync(destPath)) {
     deleteFile(destPath);
   }
 
-  Q.allSettled(pendingTasks).then(function (e) {
-    console.log("Finished removing assets for the windows platform.");
+  Q.allSettled(pendingTasks).then(function(e) {
+    console.log('Finished removing assets for the windows platform.');
 
     // restore content source to index.html in all platforms.
     configureParser(context);
     if (config) {
-      console.log("Restoring content source value to index.html");
+      console.log('Restoring content source value to index.html');
       config.setAttribute('content', 'src', 'index.html');
       config.write();
-    }
-    else {
-      console.log("could not load config.xml file");
+    } else {
+      console.log('could not load config.xml file');
     }
 
     task.resolve();
