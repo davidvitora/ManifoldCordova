@@ -112,8 +112,9 @@ function processImageList(images, baseUrl) {
 // Configure Cordova configuration parser
 function configureParser(context) {
     var cordova_util = context.requireCordovaModule('cordova-lib/src/cordova/util');
+    var ConfigParser;
     try {
-        const { ConfigParser } = require('cordova-common');
+        ConfigParser = require('cordova-common');
     } catch (err) {
         ConfigParser = context.requireCordovaModule('cordova-lib/node_modules/cordova-common').ConfigParser;
     }
