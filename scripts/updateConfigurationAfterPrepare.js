@@ -22,7 +22,7 @@ var logger = {
 function configureParser(context) {
   var cordova_util = context.requireCordovaModule('cordova-lib/src/cordova/util');
   try {
-    const { ConfigParser } = require('cordova-common');
+    var { ConfigParser } = require('cordova-common');
   } catch (err) {
     ConfigParser = context.requireCordovaModule('cordova-lib/node_modules/cordova-common').ConfigParser;
   }
