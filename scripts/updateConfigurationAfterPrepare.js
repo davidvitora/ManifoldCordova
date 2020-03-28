@@ -27,7 +27,7 @@ function configureParser(context) {
     ConfigParser = context.requireCordovaModule('cordova-lib/node_modules/cordova-common').ConfigParser;
   }
 
-  etree = context.requireCordovaModule('elementtree');
+  etree = require('elementtree');
 
   var xml = cordova_util.projectConfig(projectRoot);
   config = createConfigParser(xml, etree, ConfigParser);
