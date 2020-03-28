@@ -41,19 +41,16 @@ function deleteFile(path) {
 
 // Configure Cordova configuration parser
 function configureParser(context) {
-  var cordova_util = context.requireCordovaModule('cordova-lib/src/cordova/util');
-  var ConfigParser;
+    
+const appConfig = 
   try {
-    ConfigParser = context.requireCordovaModule('cordova-lib/node_modules/cordova-common').ConfigParser;
+    const { ConfigParser } = require('cordova-common');
   } catch (err) {
     // Fallback to old location of config parser (old versions of cordova-lib)
     ConfigParser = context.requireCordovaModule('cordova-lib/src/configparser/ConfigParser');
   }
 
-  etree = context.requireCordovaModule('cordova-lib/node_modules/elementtree');
-
-  var xml = cordova_util.projectConfig(context.opts.projectRoot);
-  config = createConfigParser(xml, etree, ConfigParser);
+  config = new ConfigParser('./config.xml');
 }
 
 module.exports = function (context) {
