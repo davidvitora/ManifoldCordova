@@ -44,7 +44,7 @@ function configureParser(context) {
     var cordova_util = context.requireCordovaModule('cordova-lib/src/cordova/util');
     var ConfigParser;
     try {
-        { ConfigParser } = require('cordova-common');
+       var { ConfigParser } = require('cordova-common');
     } catch (err) {
         ConfigParser = context.requireCordovaModule('cordova-lib/node_modules/cordova-common').ConfigParser;
     }
