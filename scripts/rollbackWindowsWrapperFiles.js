@@ -41,16 +41,17 @@ function deleteFile(path) {
 
 // Configure Cordova configuration parser
 function configureParser(context) {
-    
-const appConfig = 
-  try {
-    const { ConfigParser } = require('cordova-common');
-  } catch (err) {
-    // Fallback to old location of config parser (old versions of cordova-lib)
-    ConfigParser = context.requireCordovaModule('cordova-lib/src/configparser/ConfigParser');
-  }
+    var cordova_util = context.requireCordovaModule('cordova-lib/src/cordova/util');
+    try {
+        const { ConfigParser } = require('cordova-common');
+    } catch (err) {
+        ConfigParser = context.requireCordovaModule('cordova-lib/node_modules/cordova-common').ConfigParser;
+    }
 
-  config = new ConfigParser('./config.xml');
+    etree = context.requireCordovaModule('elementtree');
+
+    var xml = cordova_util.projectConfig(projectRoot);
+    config = createConfigParser(xml, etree, ConfigParser);
 }
 
 module.exports = function (context) {
